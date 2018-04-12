@@ -11,7 +11,7 @@ PC_DEVELOPMENT_UDP_PORT	   =
 
 OBJ :=
 
-DEFINES :=
+DEFINES := -D_SWITCH_=1 -U__linux__ -U__linux
 
 ifeq ($(GRIFFIN_BUILD), 1)
 	OBJ += griffin/griffin.o
@@ -82,8 +82,8 @@ STRIP   := $(PREFIX)strip
 NM      := $(PREFIX)nm
 LD      := $(CXX)
 
-INCDIRS := -I. -Ideps/libz -Ideps/7zip -Ilibretro-common/include -Ideps/stb
-LIBDIRS := -L.
+INCDIRS := -I. -Ideps/libz -Ideps/7zip -Ilibretro-common/include -Ideps/stb -I$(DEVKITPRO)/portlibs/switch/include
+LIBDIRS := -L. -L$(DEVKITPRO)/portlibs/switch/lib
 
 ARCHFLAGS := -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec
 CFLAGS    += $(ARCHFLAGS) -mword-relocations -fno-optimize-sibling-calls
