@@ -1,4 +1,4 @@
-TARGET		    := retroarch_vita
+TARGET		    := retroarch_switch
 DEBUG               ?= 0
 GRIFFIN_BUILD        = 0
 WHOLE_ARCHIVE_LINK   = 0
@@ -32,14 +32,14 @@ else
 	HAVE_RTGA		:= 1
 	HAVE_ZLIB		:= 1
 	HAVE_7ZIP		:= 1
-	HAVE_VITA2D		:= 1
+	HAVE_VITA2D		:= 0
 	HAVE_NETWORKING		:= 1
 	HAVE_SOCKET_LEGACY	:= 1
 	HAVE_MENU		:= 1
 	HAVE_MENU_COMMON	:= 1
 	HAVE_OVERLAY		:= 1
 	HAVE_MATERIALUI		:= 1
-	HAVE_XMB		:= 1
+	HAVE_XMB		:= 0
 	HAVE_RGUI		:= 1
 	HAVE_STB_FONT		:= 1
 	HAVE_THREADS		:= 1
@@ -58,18 +58,18 @@ else
 	BLACKLIST :=
 	OBJ := $(filter-out $(BLACKLIST),$(OBJ))
 
-	OBJ += input/drivers/psp_input.o
-	OBJ += input/drivers_joypad/psp_joypad.o
-	OBJ += audio/drivers/psp_audio.o
-	OBJ += frontend/drivers/platform_psp.o
+	OBJ += input/drivers/switch_input.o
+	OBJ += input/drivers_joypad/switch_joypad.o
+	OBJ += audio/drivers/switch_audio.o
+	OBJ += gfx/drivers/switch_gfx.o
 endif
 
 
-ifeq ($(strip $(VITASDK)),)
-$(error "Please set VITASDK in your environment. export VITASDK=<path to>vitasdk")
+ifeq ($(strip $(DEVKITPRO)),)
+$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitpro")
 endif
 
-export PATH := $(PATH):$(VITASDK)/bin
+export PATH := $(PATH):$(DEVKITPRO)devkitA64/bin
 
 PREFIX := arm-vita-eabi-
 
@@ -85,7 +85,7 @@ LD      := $(CXX)
 INCDIRS := -I. -Ideps/libz -Ideps/7zip -Ilibretro-common/include -Ideps/stb
 LIBDIRS := -L.
 
-ARCHFLAGS := -march=armv7-a -mfpu=neon -mfloat-abi=hard -DVITA
+ARCHFLAGS := -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec
 CFLAGS    += $(ARCHFLAGS) -mword-relocations -fno-optimize-sibling-calls
 
 ifeq ($(DEBUG), 1)
@@ -113,7 +113,7 @@ ifeq ($(WHOLE_ARCHIVE_LINK), 1)
    WHOLE_START := -Wl,--whole-archive
    WHOLE_END := -Wl,--no-whole-archive
 endif
-CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
+CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
 VITA_LIBS := -lSceDisplay_stub -lSceGxm_stub -lSceNet_stub -lSceNetCtl_stub \
 	-lSceSysmodule_stub -lSceCtrl_stub -lSceTouch_stub -lSceAudio_stub \
@@ -156,26 +156,6 @@ all: $(TARGETS)
 $(TARGET).elf: $(OBJ) libretro_vita.a
 	$(LD) $(OBJ) $(LDFLAGS) $(LIBDIRS) $(LIBS) -o $@
 
-%.velf: %.elf
-	vita-elf-create $< $@
-
-%.self: %.velf
-	vita-make-fself -c -s $< $@
-
-%.vpk: %.self
-	vita-mksfoex -s TITLE_ID=$(VITA_TITLE_ID) "$(VITA_TITLE_NAME)" param.sfo
-	vita-pack-vpk -s param.sfo -b $< $@
-
-clean:
-	rm -f $(OBJ) $(TARGET).elf $(TARGET).velf $(TARGET).self param.sfo $(TARGET).vpk
-	rm -f $(OBJ:.o=.depend)
-
-# Useful for developers
-vpksend: $(TARGET).vpk
-	curl -T $< ftp://$(PSVITAIP):1337/ux0:/
-
-send: $(TARGET).self
-	curl -T $< ftp://$(PSVITAIP):1337/ux0:/app/$(VITA_TITLE_ID)/eboot.bin
 
 .PHONY: clean all send vpksend
 .PRECIOUS: %.depend
