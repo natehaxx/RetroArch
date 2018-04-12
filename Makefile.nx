@@ -23,32 +23,22 @@ ifeq ($(GRIFFIN_BUILD), 1)
 	endif
 else
 
-	HAVE_NEON		:= 1
-	HAVE_FILTERS_BUILTIN	:= 1
-	HAVE_LANGEXTRA		:= 1
-	HAVE_RPNG		:= 1
-	HAVE_RJPEG		:= 1
-	HAVE_RBMP		:= 1
-	HAVE_RTGA		:= 1
-	HAVE_ZLIB		:= 1
-	HAVE_7ZIP		:= 1
-	HAVE_VITA2D		:= 0
-	HAVE_NETWORKING		:= 1
-	HAVE_SOCKET_LEGACY	:= 1
-	HAVE_MENU		:= 1
-	HAVE_MENU_COMMON	:= 1
-	HAVE_OVERLAY		:= 1
-	HAVE_MATERIALUI		:= 1
-	HAVE_XMB		:= 0
-	HAVE_RGUI		:= 1
-	HAVE_STB_FONT		:= 1
-	HAVE_THREADS		:= 1
-	HAVE_LIBRETRODB		:= 1
-	HAVE_CC_RESAMPLER	:= 1
-	HAVE_CHEEVOS		:= 1
-	RARCH_CONSOLE		:= 1
+	HAVE_CC_RESAMPLER = 1
+	HAVE_MENU_COMMON = 1
+	HAVE_RTGA = 1
+	HAVE_RPNG = 1
+	HAVE_RJPEG = 1
+	HAVE_RBMP = 1
+	HAVE_RGUI = 1
+	HAVE_ZLIB = 1
+	HAVE_BUILTINZLIB = 1
+	HAVE_LIBRETRODB = 1
+	HAVE_ZARCH = 0
+	HAVE_MATERIALUI = 0 # enable later?
+	HAVE_XMB = 0
 	HAVE_STATIC_VIDEO_FILTERS = 1
 	HAVE_STATIC_AUDIO_FILTERS = 1
+	HAVE_MENU = 1
 
 	ifeq ($(DEBUG), 1)
 		HAVE_NETLOGGER = 1
@@ -86,7 +76,7 @@ INCDIRS := -I. -Ideps/libz -Ideps/7zip -Ilibretro-common/include -Ideps/stb -I$(
 LIBDIRS := -L. -L$(DEVKITPRO)/portlibs/switch/lib
 
 ARCHFLAGS := -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec
-CFLAGS    += $(ARCHFLAGS) -mword-relocations -fno-optimize-sibling-calls
+CFLAGS    += $(ARCHFLAGS) -mword-relocations -fno-optimize-sibling-calls $(INCLUDE) -D_SWITCH_
 
 ifeq ($(DEBUG), 1)
    CFLAGS += -O2 -g
