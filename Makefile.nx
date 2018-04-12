@@ -71,7 +71,7 @@ endif
 
 export PATH := $(PATH):$(DEVKITPRO)devkitA64/bin
 
-PREFIX := arm-vita-eabi-
+PREFIX := aarch64-none-elf
 
 CC      := $(PREFIX)gcc
 CXX     := $(PREFIX)g++
